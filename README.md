@@ -1,4 +1,4 @@
-# VINLAB
+# JECTO
 ## Generate and visualize 3D motion, simulate sensor data, and support the development visual-inertial navigation systems.
 
 Specify a visual-inertial scene containing a set of related trajectories, a sensor platform, and features, in a single configuration yaml file.
