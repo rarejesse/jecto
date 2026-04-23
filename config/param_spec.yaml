@@ -1,0 +1,1277 @@
+#===========================================================================================================
+# This is the parameter specification for a Jecto Scene configuration yaml file.
+# Alphabetically, this file defines each valid parameter (yaml key), its context(s), description, and
+# either its subparams or required value conditions for the Scene to be successfully constructed. 
+#===========================================================================================================
+
+absolute:
+  - context: time_offset
+    description: "if true, the absolute initial time of the reference trajectory is subtracted from all times,
+                  else, the absolute initial time of the current trajectory is subtracted from all times"
+    values:
+      - type: bool
+
+accel_initial_bias:
+  - context: imu
+    description: "initial accelerometer bias vector - units: m/s^2"
+    values:
+      - type: float
+        
+
+accel_noise_density:
+  - context: imu
+    description: "accelerometer noise density - units: (m/s^2) * (1/sqrt(Hz))"
+    values:
+      - type: float
+        
+
+accel_random_walk:
+  - context: imu
+    description: "accelerometer rate random walk - units: (m/s^3) * (1/sqrt(Hz))"
+    values:
+      - type: float
+        
+
+align:
+  - context: trajectory
+    description: "align two trajectories in the same frame, by computing the translation and rotation that aligns them"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: [temporal*, spatial*, selection*]
+      codependent: []
+
+        
+align_trajectory:
+  - context: static_frame
+    description: 
+    subparams:
+      required: [id]
+      required_exclusive: [single_pose, best_fit]
+      optional: []
+      codependent: []
+
+align_axis: 
+  - context: rotation_trajectory
+    description: "arguments for the [rotation_align_axis function](/vinlab/src/geometry_utils.py).
+                  Compute the rotation(s) that  aligns given axis with the given vector(s), 
+                  and keeps one other axis parallel to the original xy-plane (ground plane)"
+    subparams:
+      required: [axis, vec, constrained_axis, flip]
+      required_exclusive: []
+      optional: [flip]
+      codependent: []
+
+  - context: rotation
+    description: "arguments for the [rotation_align_axis function](/vinlab/src/geometry_utils.py)"
+    subparams:
+      required: [axis, vec, constrained_axis, flip]
+      required_exclusive: []
+      optional: [flip]
+      codependent: []
+    
+allow_rescale:
+  - context: point_set_registration
+    description: "boolean: if true, allow rescaling of the trajectory during point set registration alignment"
+    values:
+      - type: bool
+
+axis: 
+  - context: align_axis
+    description: "'x','y', or 'z' axis to align with 'vec'"
+    values:
+      - type: str
+        conditions: 
+          - ["value in ['x', 'y', 'z']", "axis must be one of 'x', 'y', or 'z', got '{}''.format(value)"]
+
+best_fit:
+  - context: align_trajectory
+    description: "arguments for how to compute best fit translation and rotation to align the two trajectories"
+    subparams:
+      required: [centering_mode, rotation_mode, selection]
+      required_exclusive: []
+      optional: []
+      codependent: []
+
+body_frame:
+  - context: trajectory
+    description: "name of the body frame on the platform corresponding to the trajectory, if not provided, assumed the platform baseframe"
+    values:
+      - type: str
+    
+bodies:
+  - context: platform
+    description: "list of rigid body frames attached to the sensor platform"
+    values:
+      - type: float
+        
+
+bspline:
+  - context: translation_trajectory
+    description: "uniform bspline trajectory - generates spline of position values from set of control points"
+    subparams:
+      required: [res, degree, span_time, control_points]
+      required_exclusive: []
+      optional: [] 
+      codependent: []
+    values:
+      - type: float
+        
+
+bspline_so3:
+  - context: rotation_trajectory
+    description: "NOT IMPLEMENTED: bspline rotation trajectory - generate spline of rotation values from set of control rotations"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+camera:
+  - context: frame
+    description: "description of camera sensor"
+    subparams:
+      required: [rate]
+      required_exclusive: [intrinsics, fov]
+      optional: [width, height, distortion, noise, enable, clock_offset]
+      codependent: []
+    values:
+      - type: float
+        
+
+center:
+  - context: planar_points
+    description: "position of the center of the plane"
+    values:
+      - type: float
+        
+  - context: random_points
+    description: "position center around which to generate the random points"
+    values:
+      - type: float
+        
+
+centering_mode:
+  - context: point_set_registration
+    description: "centering mode to use when aligning the trajectories"
+    default: centroid
+    values:
+      - type: str
+        conditions:
+          - ["value in ['initial', 'centroid']", "centering mode must be one of 'initial' or 'centroid'"]
+        
+color:  
+  - context: feature
+    description: "color of all points in the set, given as string e.g. 'red', 'blue', 'green'. If not given, a repeating sequence of colors will be assigned"
+    values:
+      - type: list
+        conditions:
+          - ["len(value) == 3", "Color must be a list of 3 RGB values"]
+
+coincident:
+  - context: align
+    description: "arguments for the coincident alignment mode, which computes the transform such that the body frame of the trajectory coincides with the body frame of the reference trajectory at a selected time"
+    subparams:
+      required: [time]
+      required_exclusive: []
+      optional: [absolute, reference_clock]
+      codependent: []
+    values:
+      - type: float
+
+constant:
+  - context: rotation_trajectory
+    description: "constant rotation value to apply to the trajectory"
+    subparams:
+      required: [rotation]
+      required_exclusive: []
+      optional: [from]
+      codependent: []
+    values:
+      - type: float
+        
+
+  - context: translation_trajectory
+    description: "constant translation value to apply to the trajectory"
+    subparams:
+      required: [translation]
+      required_exclusive: []
+      optional: [from]
+      codependent: []
+    values:
+      - type: float
+        
+
+control_points:
+  - context: bspline
+    description: "The set of 3D position points to use as bspline control points. For degree k, there must be at least k+1 control points"
+    subparams:
+      required: []
+      required_exclusive: [points, file]
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+control_positions:
+  - context: bspline
+    description: "list of 3D position points to use as bspline control points"
+    subparams:
+      required: [positions]
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+control_rotations:
+  - context: bspline
+    description: "list of 3D rotation values to use as bspline control rotations"
+    subparams:
+      required: [rotations]
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+
+control_point_rate:
+  - context: subsample_interpolate
+    description: "rate at which to sample control points from the original trajectory"
+    values:
+      - type: float
+        
+
+copy:
+  - context: trajectory
+    description: "NOT IMPLEMENTED: copy an existing trajectory"
+    values:
+      - type: float
+        
+
+current_trajectory:
+  - context: vec
+    description: "Use the current trajectory's position, velocity, acceleration, or the bearing vectors from each position to its centroid
+                  as the source of vectors to align with 'axis'. Allowed values: 'pos', 'vel', 'acc', 'centroid'"
+    values:
+      - type: float
+        
+
+data:
+  - context: trajectory
+    description: "Load trajectory data from a file or rosbag"
+    subparams:
+      required: []
+      required_exclusive: [text_file*, rosbag*]
+      optional: []
+      codependent: []
+  
+        
+
+degree:
+  - context: bspline
+    description: "degree of the bspline polynomial - equal to the bspline order minus 1"
+    values:
+      - type: float
+        
+    
+  - context: subsample_interpolate
+    description: "degree of the bspline polynomial - equal to the bspline order minus 1"
+    values:
+      - type: float
+        
+
+delimiter:
+  - context: text_file
+    description: "delimiter used in the file containing trajectory data. Default is space"
+    values:
+      - type: str
+        conditions:
+          - ["value in [',', ' ']", "Delimiter must be either a comma or a space"]
+
+direction:
+  - context: gravity
+    description: "direction of the gravity vector"
+    value:
+      type: list
+      conditions:
+        - ["len(value) == 3", "Gravity must be a 3 dimensional vector"]
+    values:
+      - type: float
+        
+        
+distortion:
+  - context: camera
+    description: "radtan lens distortion parameters to generate images
+                  format: [k1, k2, p1, p2]"
+    values:
+      - type: list
+        conditions:
+          - ["len(value) in [4,5]", "Distortion must be a list of 4 or 5 elements"]
+      - type: str
+        conditions:
+          - ["value in presets.distortion.euroc_mav", "Distortion must be one of 'none', 'brown', or 'equidistant'"]
+
+enable:
+  - context: sensor
+    description: "boolean: if true, compute simulated measurements from this sensor"
+    values:
+      - type: bool
+  
+  - context: gravity
+    description: "boolean: if true, enable gravity in the environment"
+    default: true
+    values:
+      - type: bool
+        
+  
+environment:
+  - context: scene
+    description: "specify the static frames and features that make up the environment"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: [id, frames, features*, gravity*]
+      codependent: []
+
+        
+
+export:
+  - context: scene
+    description: "export configuration for the scene"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: [yaml, rosbag, features]
+      codependent: []
+    values:
+      - type: float
+        
+
+feature:
+  - context: features
+    description: "set of points and corresponding colors"
+    subparams:
+      required: [id]
+      required_exclusive: [points, random_points, planar_points]
+      optional: [color, frame]
+      codependent: []
+    values:
+      - type: float
+        
+    
+features:
+  - context: environment
+    description: "list of features from any frame"
+    values:
+      - type: float
+        
+
+file:
+  - context: trajectory
+    description: "file information for the trajectory data"
+    subparams:
+      required: [path, format, time_unit]
+      required_exclusive: []
+      optional: [jpl, frame, delimiter] 
+      codependent: []
+    values:
+      - type: float
+        
+
+  - context: control_points
+    description: "NOT IMPLEMENTED: file containing list of 3D position points to use as bspline control points"
+    subparams:
+      required: [path, format]
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+first_motion:
+  - context: time_offset
+    description: "NOT IMPLEMENTED: first motion detection parameters"
+    subparams:
+      required: [threshold, window_size]
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+flip:
+  - context: align_axis
+    description: "boolean: if true, the constrained axis will be negated, giving the other available solution"
+    values:
+      - type: bool
+        
+
+format:
+  - context: text_file
+    description: "format descriptor for the columns in the text file containing trajectory data, space-separated indicators for the data columns in the text file, must contain exactly one 't' to indicate the time column, and can contain 'x', 'y', and 'z' for position values, and/or'qx', 'qy', 'qz', and 'qw' for rotation values, underscores indicate columns to ignore, e.g. 't _ x y z _ qx qy qz qw'"
+    values:
+      - type: str
+        conditions:
+          - ["not bool(set(value)-set('txyzqw_ '))", "format string may only contain characters: 't', 'x', 'y', 'z', 'w', 'q', '_', and ' '"]
+          - ["value.count('t') == 1", "format string must contain exactly one 't' to indicate the time column"]
+          - ["bool(all(['qx' in value, 'qy' in value, 'qz' in value, 'qw' in value]) if 'q' in value else True)", "format string containing 'q' must have 'qx', 'qy', 'qz', and 'qw'"]
+          - ["bool(' ' in value)", "format string must be space-separated"]
+          - ["bool(value.count('q')==4 if 'q' in value else True)", "format string must have either zero or four 'q' characters"] 
+          - ["bool(value.count('qw') == 1 if 'w' in value else True)", "format string contating 'w' must contain 'qw'"]
+          - ["bool(value.count('x') <= 2 if 'x' in value else True)", "format string can have at most two 'x' characters"]
+          - ["bool(value.count('y') <= 2 if 'y' in value else True)", "format string can have at most two 'y' characters"]
+          - ["bool(value.count('z') <= 2 if 'z' in value else True)", "format string can have at most two 'z' characters"]
+
+fov:
+  - context: camera
+    description: "field of view in degrees of the camera images to generate"
+    value:
+      type: float
+      conditions:
+    values:
+      - type: float
+        conditions:
+          - ['0 < value <= 180', 'Field of view must be between 0 and 180 degrees']
+      
+frames:
+  - context: environment
+    description: "list of reference frames on the static rigid body which represents the environment"
+    values:
+      - type: list
+
+  - context: platform
+    description: "list of reference frames on the moving rigid body which represents the sensor platform"
+    values:
+      - type: list
+        
+
+frame:
+  - context: frames
+    description: "specify a reference frame with an id and a transform relative to another frame"
+    subparams:
+      required: [id]
+      required_exclusive: []
+      optional: [transform*, camera*, imu*, position_sensor*, velocity_sensor*, pose_sensor*]
+      codependent: []
+    
+  - context: gravity
+    description: "frame in which the gravity vector is defined, if not provided, assume environment baseframe"
+    values:
+      - type: str
+
+  - context: trajectory
+    description: "reference frame in which the trajectory is defined, if not provided, assume environment baseframe"
+    values:
+      - type: str
+
+
+  
+from:
+  - context: transform
+    description: "name of the frame relative to which to define the transform"
+    values:
+      - type: str
+        
+
+generate:
+  - context: trajectory
+    description: "generate a bspline or parametric trajectory"
+    subparams:
+      required: []
+      required_exclusive: [bspline, parametric]
+      optional: []
+      codependent: []
+        
+
+geometric:
+  - context: centering_mode
+    description: "min, max, or centroid - geometric centering mode to use when aligning the trajectories"
+    values:
+      - type: float
+        
+
+gravity:
+  - context: environment
+    description: "gravity vector in the environment and frame it is defined in"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: [enable, frame, multiplier, vector]
+      codependent: []
+
+gravity_direction:
+  - context: spatial
+    description: "direction of gravity in the frame in which the trajectory is defined"
+    default: [0,0,-1]
+    values:
+      - type: list 
+
+grid_spacing:
+  - context: planar_points
+    description: "uniform spacing used to construct grid of points on the plane"
+    values:
+      - type: float
+        
+
+constrianed_axis:
+  - context: align_axis
+    description: "string, 'x','y', or 'z' axis to remain parallel to the original xy-plane.
+                  cannot be the same as 'axis' param.
+      
+                  if not provided, it will be the next sequential axis after 'axis' (x->y, y->z, z->x)."
+    values:
+      - type: float
+        
+
+gyro_initial_bias:
+  - context: imu
+    description: "initial gyroscope bias vector - units: rad/s"
+    values:
+      - type: float
+        
+
+gyro_noise_density:
+  - context: imu
+    description: "gyro noise density - units: (rad/s^2) * (1/sqrt(Hz))"
+    values:
+      - type: float
+        
+
+gyro_random_walk:
+  - context: imu
+    description: "gyro rate random walk - units: (rad/s^2) * (1/sqrt(Hz))"
+    values:
+      - type: float
+        
+id:
+height:
+  - context: camera
+    description: "height in pixels of the camera images to generate"
+    values:
+      - type: float
+        
+  
+id:
+  - context: align_trajectory
+    description: "name of the trajectory to align with"
+    values:
+      - type: str
+        
+
+  - context: body_frame
+    description: "name of the body frame"
+    values:
+      - type: str
+        
+
+  - context: environment
+    description: "name of the environment"
+    default: environment
+    values:
+      - type: str
+        
+  
+  - context: frame
+    description: "name of the frame"
+    values:
+      - type: str
+        
+
+  - context: feature
+    description: "name of the feature"
+    values:
+      - type: str
+        
+
+  - context: platform
+    description: "name of the sensor platform"
+    default: platform
+    values:
+      - type: str
+        
+
+  - context: static_frame
+    description: "name of the static frame"
+    values:
+      - type: str
+        
+
+  - context: trajectory
+    description: "name of the trajectory"
+    values:
+      - type: str
+        
+
+ignore_rotation:
+  - comtext: single_pose
+    description: "boolean: if true, use position only to align the trajectories"
+    values:
+      - type: str
+        
+
+imu:
+  - context: frame
+    description: "description of imu sensor"
+    subparams:
+      required: [rate, gyro_noise_density, gyro_random_walk, gyro_initial_bias, accel_noise_density, accel_random_walk, accel_initial_bias]
+      required_exclusive: []
+      optional: [clock_offset, enable]
+      codependent: []
+
+intrinsics:
+  - context: camera
+    description: "camera intrinsic parameter values to generate images
+                  format: [fx, fy, cx, cy]"
+    values:
+      - type: float
+        
+
+jpl:
+  - context: text_file
+    description: "boolean: if true, assume the file contains jpl quaternions, otherwise hamilton quaternions"
+    default: false
+    values:
+      - type: bool
+
+limit:
+  - context: text_file
+    description: "maximum number of data points to read from file containing trajectory data"
+    values:
+      - type: int
+
+modify:
+  - context: trajectory
+    description: "NOT IMPLEMENTED modify a trajectory by scaling, shifting, and/or rotating about a point"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: [scale, shift, rotate_about_point]
+      codependent: []
+
+multiplier:
+  - context: gravity
+    description: "multiplier to apply to the gravity vector"
+    default: 1.0
+    values:
+      - type: float
+
+negate:
+  - context: vec
+    description: "boolean: if true, negate the vector(s) to align the specified axis"
+    values:
+      - type: float
+        
+
+normal:
+  - context: planar_points
+    description: "normal vector of the plane"
+    values:
+      - type: float
+        
+
+noise:
+  - context: camera
+    description: "standard deviation in pixels of zero-mean gaussian noise to add o the feature image points"
+    values:
+      - type: float
+         
+n:
+  - context: planar_points
+    description: "number of coplanar points to generate"
+    values:
+      - type: int
+        
+
+  - context: random_points
+    description: "number of random points to generate"
+    values:
+      - type: float
+        
+offset:
+  - context: temporal
+    description: "time offset to apply to the trajectory, can be positive or negative, applied after resampling if resampling is specified"
+    default: 0.0
+    values:
+      - type: float
+    
+output: 
+  - context: scene
+    description: "output data configuration"
+    subparams:
+      required: [images, imu_data, video, rosbag2]
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+      
+path:
+  - context: text_file
+    description: "path to the file containing position and/or rotation data"
+    values:
+      - type: str
+        conditions:
+          - ["os.path.isfile(value)", "file path does not exist, or it is not a regular file"]
+        
+planar_points:
+  - context: feature
+    description:
+    subparams:
+      required: [center, normal, radius]
+      required_exclusive: [grid_spacing, num]
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+platform:
+  - context: scene
+    description: "sensor platform: rigid body that represents a sensor platform moving through the environment -
+                   may contain any number of reference frames, with or without sensors associated with them"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: [frames, id]
+      codependent: []
+
+
+point:
+  - context: rotate_about_point
+    description: "global position point about which to rotate the trajectory"
+    values:
+      - type: float
+        
+
+
+points:
+  - context: feature
+    description: "list of 3D points"
+    values:
+      - type: float
+        
+  - context: control_points
+    description: "list of 3D position points to use as bspline control points"
+    values:
+      - type: float
+
+
+point_set_registration:
+  - context: spatial
+    description: "point set registration settings for spatial alignment of two trajectories"
+    subparams:
+      required: [centering_mode]
+      required_exclusive: []
+      optional: [yaw_only, allow_rescale]
+      codependent: []
+    
+
+pose_sensor:
+  - context: sensor
+    description: "simulate pose measurements (motion capture) from this sensor"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+position_sensor:
+  - context: sensor
+    description: "simulate posiiton measurements from this sensor"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+radius:
+  - context: planar_points
+    description: "max distance from the center of the plane"
+    values:
+      - type: float
+        
+
+  - context: random_points
+    description: "max distance from the center of the point set"
+    values:
+      - type: float
+        
+
+random_points:
+  - context: feature
+    description: "arguments for random_point_set function"
+    subparams:
+      required: [center, radius, num]
+      required_exclusive: []
+      optional: []
+      codependent: []
+
+
+rate:
+  - context: sensor
+    description: "measurement rate of the sensor in Hz"
+    values:
+      - type: float
+        
+  - context: selection
+    description: "resample both trajectories to this rate for alignment"
+    default: 0 
+    values:
+      - type: float
+    
+        
+
+reference:
+  - context: trajectory_set
+    description: "name of the reference trajectory in the group"
+    values:
+      - type: float
+
+reference_clock:
+  - context: coincident
+    description: "if true, the time given for coincident alignment is expressed in the reference trajectory's clock, else it is expressed in the current trajectory's clock"
+    default: true
+    values:
+      - type: bool 
+
+  - context: selection
+    description: "if true, the time window given for selection in the reference trajectory's clock, else it is expressed in the current trajectory's clock"
+    default: true
+    values:
+      - type: bool    
+
+  - context: selection
+    description: "if true, the time window given for selection of poses to use in best_fit alignment is expressed in the reference trajectory's clock, else it is expressed in the current trajectory's clock"
+    default: true
+    values:
+      - type: bool
+
+    
+rescale:
+  - context: align
+    description: "rescale factor to apply to the trajectory during alignment"
+    default: 1.0
+    values:
+      - type: float  
+
+resolution:
+  - context: bspline
+    description: "resolution of the bspline curve"
+    values:
+      - type: float
+
+
+rotate_about_point:
+  - context: modify
+    description: "rotate entire trajectory about a point in space - transforms both position and rotation values along the trajectory"
+    subparams:
+      required: [rotation, point]
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+rotation:
+  - context: transform
+    description: "fixed-axis x-y-z euler angle sequence (in degrees) from base frame to this sensor frame"
+    values:
+      - type: list
+        conditions:
+          - ["len(value) == 3", "Rotation must be a list of 3 elements representing x-y-z euler angles in degrees"]
+  
+  - context: rotate_about_point
+    description: " NOT IMPLEMENTED: x-y-z fixed-axis euler angles in degrees to apply to the trajectory about a fixed point"
+    values:
+      - type: float
+        
+
+  - context: constant
+    description: constant rotation value to apply to the trajectory"
+    values:
+      - type: float
+        
+
+rotation_mode:
+  - context: best_fit
+    description: "rotation alignment mode to use when aligning the trajectories"
+    subparams:
+      required: []
+      required_exclusive: [so3, z_only]
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+    
+rotation_only:
+  - context: subsample_interpolate
+    description: "translation value in the trajectory will be zero at all times"
+    values:
+      - type: float
+        
+
+rotation_rule:
+  - context: bspline
+    description: "rotation rule to use when generating the bspline rotation trajectory"
+    subparams:
+      required: []
+      required_exclusive: [constant, align_axis]
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+rotation_trajectory:
+  - context: trajectory
+    description: "rotation component of the trajectory"
+    subparams:
+      required: []
+      required_exclusive: [bspline_so3, file, constant, align_axis]
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+scale:
+  - context: trajectory
+    description: "scale all position values in the trajectory by this value, leave rotation values unchanged"
+    values:
+      - type: float
+        
+
+scene:
+  - context:  #does not have a context - scene parameters are the top level keys in a configuration yaml file
+    description: "construct a scene by specifying the sensor platform, environment, trajectories"
+    subparams: 
+      required: []
+      required_exclusive: []
+      optional: [platform*, environment*, trajectories, export*]
+      codependent: []
+
+sensor:
+  - context: sensors
+    description: "camera or imu sensor rigidly attached to the sensor platform"
+    subparams:
+      required: [id, enable_measurements, rate]
+      required_exclusive: [imu, camera]
+      optional: [transform, time_offset]
+      codependent: []
+    values:
+      - type: float
+        
+
+sensors:
+  - context: platform
+    description: "list of sensors attached to the sensor platform"
+    values:
+      - type: float
+        
+ 
+shift:
+  - context: trajectory
+    description: "shift all position values in the trajectory by this position vector, leave rotation values unchanged"
+    values:
+      - type: float
+        
+
+selection:
+  - context: align
+    description: "subset of poses to use for best_fit alignment"
+    subparams:
+      required: [time_window]
+      required_exclusive: []
+      optional: [rate, reference_clock]
+      codependent: []
+        
+    # value_check: #indicate a value checker id or something.
+single_pose:
+  - context: align_trajectory
+    description: "align trajectories by selecting a single time or index and finding the transform (for the entire trajectory) \
+                  which makes the the trajectory exactly coincide with the reference trajectory at the selected time or index"
+    subparams:
+      required: [time, index]
+      required_exclusive: []
+      optional: [ignore_rotation]
+      codependent: []
+    values:
+      - type: float
+        
+
+source_trajectory:
+  - context: subsample_interpolate
+    description: "existing id of the trajectory to subsample and use as control points"
+    values:
+      - type: float
+        
+
+span_time:
+  - context: bspline
+    description: "time in seconds to traverse a single span of the bspline curve"
+    values:
+      - type: float
+        
+
+spatial:
+  - context: align
+    description: "spatial alignment settings for aligning two trajectories"
+    subparams:
+      required: []
+      required_exclusive: [point_set_registration*, coincident*]
+      optional: [gravity_direction]
+      codependent: []
+
+        
+
+subsample_interpolate:
+  - context: trajectory
+    description: "subsample an existing trajectory and use the resulting positions as control points for a new trajectory"
+    subparams:
+      required: [source_trajectory, control_point_rate, degree]
+      required_exclusive: []
+      optional: [translation_only, rotation_only]
+      codependent: []
+    values:
+      - type: float
+        
+
+temporal:
+  - context: align
+    description: "temporal alignment settings for aligning two trajectories"
+    subparams:
+      required: []
+      required_exclusive: [offset, correlation*]
+      optional: []
+      codependent: []
+
+        
+
+text_file:
+  - context: data
+    description: "file contating text data to load as a trajectory"
+    subparams:
+      required: [path, format, time_unit]
+      required_exclusive: []
+      optional: [jpl, delimiter, limit, select*, ignore*] 
+      codependent: []
+
+
+threshold:
+  - context: time_offset
+    description: threshold for first motion detection"
+    values:
+      - type: float
+        
+time:
+  - context: coincident
+    description: "time or index at which to align the trajectories in coincident mode"
+    values:
+      - type: float
+
+
+time_offset:
+  - context: sensor
+    description: "NOT IMPLEMENTED: time offset in seconds to apply to the sensor measurements"
+    values:
+      - type: float
+        
+  - context: trajectory
+    description: "time offset in seconds to apply to each time in the trajectory"
+    subparams:
+      required: []
+      required_exclusive: [first_motion, value]
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+time_unit:
+  - context: text_file
+    description: "the unit of the time values in the text file containing trajectory data"
+    values:
+      - type: str
+        conditions:
+          - ["value in ['s', 'ms', 'us', 'ns']", "time unit must be one of 's', 'ms', 'us', or 'ns'"]
+
+        
+time_window:
+  - context: selection
+    description: "time window [start_time, end_time] in seconds to select poses from the trajectory"
+    values:
+      - type: list
+        conditions:
+          - ["len(value) == 2", "time window must be a list of two elements: [start_time, end_time]"]
+          - ["value[0] < value[1]", "time window start_time must be less than end_time"]
+        
+
+trajectories:
+  - context: scene
+    description: "list of trajectories to compare"
+    values:
+      - type: list
+        
+
+trajectory:
+  - context: trajectories
+    description: "trajectory from data or to be generated"
+    subparams:
+      required: [id]
+      required_exclusive: [data*, generate*]
+      optional: [frame, body_frame, align*]
+      codependent: []
+
+        
+
+transform:
+  - context: frame
+    description: "6 DOF transform describing the pose of this frame relative to the frame specified in the 'from' parameter."
+    subparams:
+      required: [from, translation, rotation]
+      required_exclusive: []
+      optional: []
+      codependent: []
+
+transpose:
+  - context: table
+    description: "boolean: if true, transpose the data after loading it"
+    values:
+      - type: float
+        conditions: 
+          - []
+
+translation:
+  - context: transform
+    description: "translation component of the transform, in meters"
+    values:
+      - type: list
+        conditions: 
+          - ["len(value) == 3", "Translation must be a list of 3 elements representing x-y-z translation in meters"]
+
+translation_trajectory:
+  - context: trajectory
+    description: "translation component of the trajectory"
+    subparams:
+      required: []
+      required_exclusive: [bspline, file, constant]
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+translation_only:
+  - context: subsample_interpolate
+    description: rotation value in the trajectory will be identity at all times
+    values:
+      - type: float
+        
+
+translation_mode:
+  - context: align_trajectories
+    description: "translation alignment mode to use when aligning the trajectories"
+    subparams:
+      required: []
+      required_exclusive: [initial_positions, centroids]
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+value:
+  - context: time_offset
+    description: value to add to the time in the trajectory"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+
+vec:
+  - context: align_axis
+    description: "vector(s) to align with the specified axis"
+    subparams:
+      required: []
+      required_exclusive: [current_trajectory]
+      optional: [negate]
+      codependent: []
+    values:
+      - type: float
+
+vector:
+  - context: gravity
+    description: "xyz components of the gravity vector, in m/s^2. If not provided, will default to [0, 0, -9.81] in the specified frame"
+    default: [0, 0, -9.81]
+    values:
+      - type: list
+        conditions:
+          - ["len(value) == 3", "gravity must be a 3 dimensional vector"]
+
+        
+velocity_sensor:
+  - context: sensor
+    description: "simulate velocity measurements"
+    subparams:
+      required: []
+      required_exclusive: []
+      optional: []
+      codependent: []
+    values:
+      - type: float
+        
+    
+width:
+  - context: camera
+    description: "width in pixels of the camera images to generate"
+    value:
+      type: int
+      conditions:
+        - ["0 < value <= 10000" , "Width must be a positive integer less than 10000"]
+    values:
+      - type: float
+        
+
+window_size:
+  - context: time_offset
+    description: "window size in seconds for first motion detection"
+    values:
+      - type: float
+        
+
+yaml:
+  - context: any
+    description: "path to yaml file containing the configuration. This is a special key that is valid in any context except scene.
+                  In whichever context it is used, it's top level keys directly replaces the keys in the current context. makes
+                  a 'block' of configuration values usable across multiple config files"
+    values:
+      - type: float
+        
+yaw_only:
+  - context: point_set_registration
+    description: "boolean: if true, only align the yaw (z) component of the rotation between the trajectories, ignore roll and pitch"
+    values:
+      - type: bool
